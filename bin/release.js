@@ -28,7 +28,7 @@ async function releaseNextVersion() {
     console.log(await exec('lerna', nextArgs).replace(/\r?\n?[^\r\n]*$/, ''));
     await continueWithRelease();
   }
-  console.log(await exec('lerna', [ ...nextArgs, '--yes' ]));
+  console.log(await exec('lerna', [ ...nextArgs, '--yes' ], {}, false));
 }
 
 async function releaseLatestVersion() {
@@ -39,7 +39,7 @@ async function releaseLatestVersion() {
     await continueWithRelease();
   }
 
-  console.log(await exec('lerna', latestArgs));
+  console.log(await exec('lerna', latestArgs, {}, false));
 }
 
 (async function main() {
