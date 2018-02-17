@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 const path = require('path');
 const { spawnSync } = require('child_process');
-const packageJson = require(__dirname + '/../package.json');
-const lernaJson = require(__dirname + '/../lerna.json');
+const oldPackageJson = require(__dirname + '/../package.json');
+const oldLernaJson = require(__dirname + '/../lerna.json');
 const argv = require('yargs').argv;
 const inquirer = require('inquirer');
 const semver = require('semver');
@@ -10,7 +10,7 @@ const execa = require('execa');
 
 const githubToken = process.env.GITHUB_TOKEN;
 if (!githubToken) {
-  console.log('WARNING: Not github token found, this may cause problems when commiting.');
+  console.log('WARNING: Not github token found, this may cause problems when committing.');
 }
 
 const npmBin = trim(spawnSync('npm', [ 'bin' ]).stdout);
@@ -83,10 +83,10 @@ async function releaseLatestVersion() {
   const lerna = await exec('lerna', [ '-v' ]);
   console.log(`Lerna version  v${lerna}`);
 
-  if (lerna !== lernaJson.lerna) {
+  if (lerna !== oldLernaJson.lerna) {
     console.log(`\nERROR: Mismatched Lerna version.
  => found: ${lerna}
- => expected: ${lernaJson.lerna}
+ => expected: ${oldLernaJson.lerna}
  
  Looks like you may not have ran NPM install into this directory. 
 `);
@@ -144,6 +144,9 @@ async function releaseLatestVersion() {
     await exec('git', [ 'pull', remote, branch ]);
   }
 
+  const packageJson = require(__dirname + '/../package.json');
+  const lernaJson = require(__dirname + '/../lerna.json');
+
   console.log('\n=> Checking version branch and tag doesn\'t already exist.');
   const target = semver.inc(lernaJson.version, increment);
   const targetBranch = `release/v${target}`;
@@ -173,20 +176,20 @@ async function releaseLatestVersion() {
   console.log('Success! You are now on the branch ready to go.');
 
   if (!argv[ 'skip-push' ]) {
-      const userResponse = argv['push'] ? {continue: true} : await inquirer.prompt({
-        type: 'confirm',
-        name: 'continue',
-        message: `Do you want to push the branch to your remote? (${remote})`,
-      });
-      if (userResponse[ 'continue' ]) {
-        console.log(`Pushing branch "${targetBranch}" and tag "v${target}" to remote "${remote}"`);
-        await exec('git', ['push', remote, targetBranch])
-        await exec('git', ['push', remote, `v${target}`])
+    const userResponse = argv[ 'push' ] ? { continue: true } : await inquirer.prompt({
+      type: 'confirm',
+      name: 'continue',
+      message: `Do you want to push the branch to your remote? (${remote})`,
+    });
+    if (userResponse[ 'continue' ]) {
+      console.log(`Pushing branch "${targetBranch}" and tag "v${target}" to remote "${remote}"`);
+      await exec('git', [ 'push', remote, targetBranch ]);
+      await exec('git', [ 'push', remote, `v${target}` ]);
 
-        if (packageJson.repository) {
-          console.log(`Your branch has been pushed, click here to open a PR: ${packageJson.repository}/compare/release/v${target}?expand=1`);
-        }
+      if (packageJson.repository) {
+        console.log(`Your branch has been pushed, click here to open a PR: ${packageJson.repository}/compare/release/v${target}?expand=1`);
       }
+    }
   } else {
     console.log(`Your branch ${targetBranch} and tag "v${target}" are available to push.`);
   }
