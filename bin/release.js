@@ -88,6 +88,11 @@ async function releaseLatestVersion() {
     process.exit(1);
   }
 
+  if (!await exec('lerna', [ 'diff' ])) {
+    console.log('No updated packages to publish.');
+    process.exit();
+  }
+
   if (argv[ 'diff' ]) {
 
     console.log('\n=> Showing changes since last release:');
