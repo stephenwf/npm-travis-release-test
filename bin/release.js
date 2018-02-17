@@ -6,15 +6,8 @@ const oldLernaJson = require(__dirname + '/../lerna.json');
 const argv = require('yargs').argv;
 const inquirer = require('inquirer');
 const semver = require('semver');
-const execa = require('execa');
-
-const npmBin = trim(spawnSync('npm', [ 'bin' ]).stdout);
-
-spawnSync('export', [ 'PATH="$(npm bin):$PATH"' ]);
-
-function trim(foo) {
-  return `${foo}`.trim();
-}
+const exec = require('./exec');
+const chalk = require('chalk');
 
 async function continueWithRelease() {
   if (argv[ 'y' ] || argv[ 'yes' ]) {
@@ -23,36 +16,14 @@ async function continueWithRelease() {
 
   const userResponse = await inquirer.prompt({ type: 'confirm', name: 'continue', message: 'Continue with release?' });
   if (!userResponse[ 'continue' ]) {
-    console.log('Aborting release...');
+    console.log(chalk.red('Aborting release...'));
     process.exit(1);
-  }
-}
-
-async function exec(command, args, options = {}, suppress = true) {
-  try {
-    const response = await execa(command, args, {
-      env: {
-        PATH: `${npmBin}:${process.env.PATH}`,
-      },
-      ...options,
-    });
-    if (suppress === false && response.stderr) {
-      throw new Error(response.stderr);
-    }
-    return trim(
-      response.stdout,
-    );
-  } catch (err) {
-    if (suppress) {
-      return '';
-    }
-    throw err;
   }
 }
 
 async function releaseNextVersion() {
   const nextArgs = [ 'publish', '--skip-git', '--npm-tag=next', '--canary=next' ];
-  console.log('\n=> Preparing to release new "next" tag');
+  console.log(`\n=> ${chalk.blue('Preparing to release new "next" tag')}`);
   if (!argv[ 'y' ] && !argv[ 'yes' ]) {
     console.log(await exec('lerna', nextArgs).replace(/\r?\n?[^\r\n]*$/, ''));
     await continueWithRelease();
@@ -62,7 +33,7 @@ async function releaseNextVersion() {
 
 async function releaseLatestVersion() {
   const latestArgs = [ 'exec', 'publish' ];
-  console.log('\n=> Preparing to release new "latest" tag');
+  console.log(`\n=> ${chalk.blue('Preparing to release new "latest" tag')}`);
   if (!argv[ 'y' ] && !argv[ 'yes' ] && !argv[ 'ls' ]) {
     console.log(await exec('lerna', [ 'ls' ]));
     await continueWithRelease();
@@ -72,30 +43,30 @@ async function releaseLatestVersion() {
 }
 
 (async function main() {
-  console.log('=> Checking installed versions...');
-  console.log(`Node version   ${await exec('node', [ '-v' ])}`);
-  console.log(`NPM version    v${await exec('npm', [ '-v' ])}`);
+  console.log(`\n=> ${chalk.yellow('Checking installed versions...')}`);
+  console.log(`Node version   ${chalk.green(`v${await exec('node', [ '-v' ])}`)}`);
+  console.log(`NPM version    ${chalk.green(`v${await exec('npm', [ '-v' ])}`)}`);
   const lerna = await exec('lerna', [ '-v' ]);
-  console.log(`Lerna version  v${lerna}`);
+  console.log(`Lerna version  v${chalk.green(lerna)}`);
 
   if (lerna !== oldLernaJson.lerna) {
-    console.log(`\nERROR: Mismatched Lerna version.
+    console.log(`\nERROR: ${chalk.red('Mismatched Lerna version.')}
  => found: ${lerna}
  => expected: ${oldLernaJson.lerna}
  
- Looks like you may not have ran NPM install into this directory. 
+ Looks like you may not have run "npm install" in this directory. 
 `);
     process.exit(1);
   }
 
   if (!await exec('lerna', [ 'diff' ])) {
-    console.log('No updated packages to publish.');
+    console.log(chalk.yellow('No updated packages to publish.'));
     process.exit();
   }
 
   if (argv[ 'diff' ]) {
 
-    console.log('\n=> Showing changes since last release:');
+    console.log(`\n=> ${chalk.blue('Showing changes since last release:')}`);
     console.log(await exec('lerna', [ 'diff' ]));
 
     await continueWithRelease();
@@ -103,7 +74,7 @@ async function releaseLatestVersion() {
 
   if (argv[ 'ls' ]) {
 
-    console.log('\n=> Current package versions:');
+    console.log(`\n=> ${chalk.blue('Current package versions:')}`);
     console.log(await exec('lerna', [ 'ls' ]));
 
     await continueWithRelease();
@@ -122,7 +93,7 @@ async function releaseLatestVersion() {
   // Default steps.
   const gitStatus = await exec('git', [ 'status', '-s' ]);
   if (gitStatus && !argv[ 'ignore-git' ]) {
-    console.log('\n=> ERROR: You have unstaged or untracked files, please commit or stash these.\n');
+    console.log(`\n=> ERROR: ${chalk.red('You have unstaged or untracked files, please commit or stash these.')}\n`);
     console.log(gitStatus);
     process.exit(1);
   }
@@ -134,12 +105,12 @@ async function releaseLatestVersion() {
   const branchExists = await exec('git', [ 'rev-parse', '--verify', branch ]);
 
   if (!branchExists) {
-    console.log(`\n=> ERROR: Branch "${branch}" doesn't exist.`);
+    console.log(`\n=> ${chalk.red(`ERROR: Branch "${branch}" doesn't exist.`)}`);
     process.exit(1);
   }
 
   if (!argv[ 'skip-update' ]) {
-    console.log('\n=> Checking out master, pulling down latest changes.');
+    console.log(`\n=> ${chalk.blue('Checking out master, pulling down latest changes.')}`);
     await exec('git', [ 'checkout', branch ]);
     await exec('git', [ 'pull', remote, branch ]);
   }
@@ -147,7 +118,7 @@ async function releaseLatestVersion() {
   const packageJson = require(__dirname + '/../package.json');
   const lernaJson = require(__dirname + '/../lerna.json');
 
-  console.log('\n=> Checking version branch and tag doesn\'t already exist.');
+  console.log(`\n=> ${chalk.blue('Checking version branch and tag doesn\'t already exist.')}`);
   const target = semver.inc(lernaJson.version, increment);
   const targetBranch = `release/v${target}`;
   const targetBranchExists = await exec('git', [ 'rev-parse', '--verify', targetBranch ]);
@@ -158,22 +129,22 @@ async function releaseLatestVersion() {
   }
 
   if (targetBranchExists || targetTagExists) {
-    console.log(`ERROR: The version "v${target}" already exists, please delete ${targetBranch} and tag v${target} to continue`);
+    console.log(`ERROR: ${chalk.red(`The version "v${target}" already exists, please delete ${targetBranch} and tag v${target} to continue`)}`);
     process.exit(1);
   }
-  console.log(`  | Current Version: ${lernaJson.version}`);
-  console.log(`  | Increment:       ${increment}`);
-  console.log(`  | New version:     ${target}\n`);
+  console.log(`  | Current Version: ${chalk.blue(lernaJson.version)}`);
+  console.log(`  | Increment:       ${chalk.yellow(increment)}`);
+  console.log(`  | New version:     ${chalk.green(target)}\n`);
 
   await continueWithRelease();
 
-  console.log(`\n=> Checking out new branch "${targetBranch}"`);
+  console.log(`\n=> ${chalk.green(`Checking out new branch "${targetBranch}"`)}`);
   await exec('git', [ 'checkout', '-b', targetBranch ]);
   console.log(`\n=> Running Lerna publish`);
   console.log(
     await exec('lerna', [ 'publish', '--skip-npm', `--cd-version=${increment}`, '--yes' ]),
   );
-  console.log('Success! You are now on the branch ready to go.');
+  console.log(chalk.green('Success! You are now on the branch ready to go.'));
 
   if (!argv[ 'skip-push' ]) {
     const userResponse = argv[ 'push' ] ? { continue: true } : await inquirer.prompt({
@@ -187,11 +158,11 @@ async function releaseLatestVersion() {
       await exec('git', [ 'push', remote, `v${target}` ]);
 
       if (packageJson.repository) {
-        console.log(`Your branch has been pushed, click here to open a PR: ${packageJson.repository}/compare/release/v${target}?expand=1`);
+        console.log(`${chalk.green('Your branch has been pushed')}, click here to open a PR:${packageJson.repository}/compare/release/v${target}?expand=1`);
       }
     }
   } else {
-    console.log(`Your branch ${targetBranch} and tag "v${target}" are available to push.`);
+    console.log(chalk.green(`Your branch ${targetBranch} and tag "v${target}" are available to push.`));
   }
   console.log('Success!');
 
