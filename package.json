@@ -1,5 +1,19 @@
 {
 	"devDependencies": {
-		"lerna": "^2.4.0"
+		"inquirer": "^5.1.0",
+		"lerna": "^2.9.0",
+		"yargs": "^11.0.0"
+	},
+	"scripts": {
+		"release": "node ./bin/release.js",
+		"release-bin": "./bin/release.sh"
+	},
+	"license": "MIT",
+	"release": {
+		"major": 0,
+		"minor": 0
+	},
+	"dependencies": {
+		"semver": "^5.5.0"
 	}
 }
