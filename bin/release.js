@@ -173,8 +173,7 @@ async function releaseLatestVersion() {
   console.log('Success! You are now on the branch ready to go.');
 
   if (!argv[ 'skip-push' ]) {
-    if (argv[ 'push' ]) {
-      const userResponse = await inquirer.prompt({
+      const userResponse = argv['push'] ? {continue: true} : await inquirer.prompt({
         type: 'confirm',
         name: 'continue',
         message: `Do you want to push the branch to your remote? (${remote})`,
@@ -185,12 +184,11 @@ async function releaseLatestVersion() {
         await exec('git', 'push', remote, `v${target}`);
 
         if (packageJson.repository) {
-          console.log(`Your branch has been pushed, click here to open a PR: ${packageJson.repository}/compare/v${target}...${branch}`);
+          console.log(`Your branch has been pushed, click here to open a PR: ${packageJson.repository}/compare/${branch}...v${target}`);
         }
       }
-    } else {
-      console.log(`Your branch ${targetBranch} and tag "v${target}" are available to push.`);
-    }
+  } else {
+    console.log(`Your branch ${targetBranch} and tag "v${target}" are available to push.`);
   }
   console.log('Success!');
 
