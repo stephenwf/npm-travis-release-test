@@ -1,6 +1,6 @@
 {
   "name": "ntrt-test-1",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "Describe ntrt-test-1 here",
   "main": "lib/index.js",
   "files": [
@@ -15,8 +15,6 @@
     "test:coverage": "nwb test --coverage",
     "test:watch": "nwb test --server",
     "prepublish": "npm run build"
-  },
-  "dependencies": {
   },
   "devDependencies": {
     "nwb": "0.19.x"
