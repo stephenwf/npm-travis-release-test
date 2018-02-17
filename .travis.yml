@@ -1,18 +1,16 @@
 language: node_js
-
 cache:
   directories:
-    - node_modules
-    - $HOME/.npm
-
+  - node_modules
+  - "$HOME/.npm"
 notifications:
   email: false
-
 node_js:
-  - '8.9.4'
-
+- 8.9.4
 script:
-  - npm test
-
+- npm test
 after_success:
-  - ./deploy.sh
+- "./deploy.sh"
+env:
+  matrix:
+    secure: jVCA6tUw8Sd9p3tKM1WqV/jl6Phu3Xo3OcFhmMBP1ZZnzvV23qFo51JH7OZ06sm5oEhzO+aUhnSKxy9hebn4p/3zJJiGkKm01RmWs1diGCp6rGnYsPU8ptHwZrOChz1886jo+u3Iw/3SLGdcPn8Pa2QcD9dGYEXvds5xFwlw5zoEzAnMACa246ustG9k5ia/dCz3/VMRDAoxzGfAGq7BUkeahWBftad743o6b96pE6Fy/1SkK9VNuwgBU4KpYuPwJ0//zbcMJlciZ396JO3AQdhyVTBGtpthVCTsXaC0tkV5H2SHFOl5ixzBkV/Q3EgsrgaIk3X0Uguzinu3dc0JTTLaOdYcl5xTkwhybChg9SLjkpMscz8J6hklFDGYcO56fEOugtfYOBQrqCW3XWxfm+e8nsErafqDJaoDqLAV0ndcDq7nkLhC2Sl5qM9UwJJeyieU7Aq1wklSVDLsukKw6FQHzPQnXkeYjAo+1ijEizlGzmzWSxm36KVzN2CmdwDMFAdgU6h0lowJuA7O4k5nsobCVmbB/8gqRS1Qkq91Y8lP8vjYa3296Iu5/m9+9rMWYNdmL+TAfF9JT5+BZ1Hlt0835qTgr+jZZRYPR31+DdClyUOU58O+4mdc/Wb1wrBIqViS3p56PFENgJiBKlkm/MnPLntT5ckxTxShZm5lJDc=

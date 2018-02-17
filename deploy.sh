@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
+
+echo "//registry.npmjs.org/:_authToken=${NPM_AUTH}" >> ~/.npmrc
+
 if [[ "$TRAVIS_BRANCH" = "master" ]] && [[ "$TRAVIS_PULL_REQUEST" = "false" ]]; then
     if [[ "$TRAVIS_TAG" = "$TRAVIS_BRANCH" ]]; then
         echo "SKIPPING BUILDING TAG ON MASTER";
     else
-        echo "DEPLOYING A NEXT";
+        npm run publish -- --next
     fi
 fi
 
