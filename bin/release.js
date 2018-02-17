@@ -180,8 +180,8 @@ async function releaseLatestVersion() {
       });
       if (userResponse[ 'continue' ]) {
         console.log(`Pushing branch "${targetBranch}" and tag "v${target}" to remote "${remote}"`);
-        await exec('git', 'push', remote, targetBranch);
-        await exec('git', 'push', remote, `v${target}`);
+        console.log(await exec('git', ['push', remote, targetBranch]));
+        console.log(await exec('git', ['push', remote, `v${target}`]));
 
         if (packageJson.repository) {
           console.log(`Your branch has been pushed, click here to open a PR: ${packageJson.repository}/compare/${branch}...v${target}`);
