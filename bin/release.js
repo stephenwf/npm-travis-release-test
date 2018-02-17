@@ -144,16 +144,18 @@ async function releaseLatestVersion() {
     await exec('git', [ 'pull', remote, branch ]);
   }
 
-  console.log('\n=> Checking version branch doesn\'t already exist.');
+  console.log('\n=> Checking version branch and tag doesn\'t already exist.');
   const target = semver.inc(lernaJson.version, increment);
   const targetBranch = `release/v${target}`;
   const targetBranchExists = await exec('git', [ 'rev-parse', '--verify', targetBranch ]);
+  const targetTagExists = await exec('git', [ 'rev-parse', '--verify', `v${target}` ]);
   if (!target || target === '0.0.0') {
     console.log(`ERROR: Invalid increment passed: "${increment}"`);
     process.exit(1);
   }
-  if (targetBranchExists) {
-    console.log(`ERROR: The version "v${target}" already exists, please delete ${targetBranch} to continue`);
+
+  if (targetBranchExists || targetTagExists) {
+    console.log(`ERROR: The version "v${target}" already exists, please delete ${targetBranch} and tag v${target} to continue`);
     process.exit(1);
   }
   console.log(`  | Current Version: ${lernaJson.version}`);
