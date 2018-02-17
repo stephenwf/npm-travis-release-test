@@ -1,6 +1,6 @@
 {
   "name": "ntrt-test-2",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Describe ntrt-test-2 here",
   "main": "lib/index.js",
   "files": [
