@@ -6,7 +6,7 @@ if [[ "$TRAVIS_BRANCH" = "master" ]] && [[ "$TRAVIS_PULL_REQUEST" = "false" ]]; 
     if [[ "$TRAVIS_TAG" = "$TRAVIS_BRANCH" ]]; then
         echo "SKIPPING BUILDING TAG ON MASTER";
     else
-        npm run publish -- --next
+        npm run publish -- --next --yes
     fi
 fi
 
