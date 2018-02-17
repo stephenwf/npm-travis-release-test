@@ -3,7 +3,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 const packageJson = require(__dirname + '/../package.json');
 const lernaJson = require(__dirname + '/../lerna.json');
-const argv = require('yargs').argv
+const argv = require('yargs').argv;
 const inquirer = require('inquirer');
 const semver = require('semver');
 const execa = require('execa');
@@ -13,55 +13,62 @@ if (!githubToken) {
   console.log('WARNING: Not github token found, this may cause problems when commiting.');
 }
 
-const npmBin = trim(spawnSync('npm', ['bin']).stdout);
+const npmBin = trim(spawnSync('npm', [ 'bin' ]).stdout);
 
-spawnSync('export', ['PATH="$(npm bin):$PATH"']);
+spawnSync('export', [ 'PATH="$(npm bin):$PATH"' ]);
 
 function trim(foo) {
-  return `${foo}`.trim()
+  return `${foo}`.trim();
 }
 
 async function continueWithRelease() {
-  if (argv['y'] || argv['yes']) {
+  if (argv[ 'y' ] || argv[ 'yes' ]) {
     return;
   }
 
   const userResponse = await inquirer.prompt({ type: 'confirm', name: 'continue', message: 'Continue with release?' });
-  if(!userResponse['continue']) {
+  if (!userResponse[ 'continue' ]) {
     console.log('Aborting release...');
     process.exit(1);
   }
 }
 
 async function exec(command, args, options = {}, suppress = true) {
-  const response = await execa(command, args, {
-    env: {
-      PATH: `${npmBin}:${process.env.PATH}`,
-    },
-    ...options,
-  });
+  try {
+    const response = await execa(command, args, {
+      env: {
+        PATH: `${npmBin}:${process.env.PATH}`,
+      },
+      ...options,
+    });
+  } catch (err) {
+    if (suppress) {
+      return '';
+    }
+    throw err;
+  }
   if (suppress === false && response.stderr) {
     throw new Error(response.stderr);
   }
   return trim(
-    response.stdout
+    response.stdout,
   );
 }
 
 async function releaseNextVersion() {
-  const nextArgs = ['publish', '--skip-git', '--npm-tag=next', '--canary=next'];
+  const nextArgs = [ 'publish', '--skip-git', '--npm-tag=next', '--canary=next' ];
   console.log('\n=> Preparing to release new "next" tag');
-  if (!argv['y'] && !argv['yes']) {
-    console.log(await exec('lerna', nextArgs).replace(/\r?\n?[^\r\n]*$/, ""));
+  if (!argv[ 'y' ] && !argv[ 'yes' ]) {
+    console.log(await exec('lerna', nextArgs).replace(/\r?\n?[^\r\n]*$/, ''));
     await continueWithRelease();
   }
-  console.log(await exec('lerna', [...nextArgs, '--yes']));
+  console.log(await exec('lerna', [ ...nextArgs, '--yes' ]));
 }
 
 async function releaseLatestVersion() {
-  const latestArgs = ['exec', 'publish'];
+  const latestArgs = [ 'exec', 'publish' ];
   console.log('\n=> Preparing to release new "latest" tag');
-  if (!argv['y'] && !argv['yes'] && !argv['ls']) {
+  if (!argv[ 'y' ] && !argv[ 'yes' ] && !argv[ 'ls' ]) {
     console.log(await exec('lerna', [ 'ls' ]));
     await continueWithRelease();
   }
@@ -71,9 +78,9 @@ async function releaseLatestVersion() {
 
 (async function main() {
   console.log('=> Checking installed versions...');
-  console.log(`Node version   ${await exec('node', ['-v'])}`);
-  console.log(`NPM version    v${await exec('npm', ['-v'])}`);
-  const lerna = await exec('lerna', ['-v']);
+  console.log(`Node version   ${await exec('node', [ '-v' ])}`);
+  console.log(`NPM version    v${await exec('npm', [ '-v' ])}`);
+  const lerna = await exec('lerna', [ '-v' ]);
   console.log(`Lerna version  v${lerna}`);
 
   if (lerna !== lernaJson.lerna) {
@@ -86,15 +93,15 @@ async function releaseLatestVersion() {
     process.exit(1);
   }
 
-  if (argv['diff']) {
+  if (argv[ 'diff' ]) {
 
     console.log('\n=> Showing changes since last release:');
     console.log(await exec('lerna', [ 'diff' ]));
-    
+
     await continueWithRelease();
   }
 
-  if (argv['ls']) {
+  if (argv[ 'ls' ]) {
 
     console.log('\n=> Current package versions:');
     console.log(await exec('lerna', [ 'ls' ]));
@@ -103,35 +110,35 @@ async function releaseLatestVersion() {
   }
 
   // On Travis + Master branch
-  if (argv['next']) {
+  if (argv[ 'next' ]) {
     return await releaseNextVersion();
   }
 
   // On Travis + Master branch + Tag
-  if (argv['latest']) {
+  if (argv[ 'latest' ]) {
     return await releaseLatestVersion();
   }
 
   // Default steps.
-  const gitStatus = await exec('git', ['status', '-s']);
-  if (gitStatus && !argv['ignore-git']) {
+  const gitStatus = await exec('git', [ 'status', '-s' ]);
+  if (gitStatus && !argv[ 'ignore-git' ]) {
     console.log('\n=> ERROR: You have unstaged or untracked files, please commit or stash these.\n');
     console.log(gitStatus);
     process.exit(1);
   }
 
-  const branch = argv['branch'] || 'master';
-  const remote = argv['remote'] || 'origin';
-  const increment = argv['increment'] || 'patch';
+  const branch = argv[ 'branch' ] || 'master';
+  const remote = argv[ 'remote' ] || 'origin';
+  const increment = argv[ 'increment' ] || 'patch';
 
-  const branchExists = await exec('git', ['rev-parse', '--verify', branch]);
+  const branchExists = await exec('git', [ 'rev-parse', '--verify', branch ]);
 
   if (!branchExists) {
     console.log(`\n=> ERROR: Branch "${branch}" doesn't exist.`);
     process.exit(1);
   }
 
-  if (!argv['skip-update']) {
+  if (!argv[ 'skip-update' ]) {
     console.log('\n=> Checking out master, pulling down latest changes.');
     await exec('git', [ 'checkout', branch ]);
     await exec('git', [ 'pull', remote, branch ]);
@@ -140,7 +147,7 @@ async function releaseLatestVersion() {
   console.log('\n=> Checking version branch doesn\'t already exist.');
   const target = semver.inc(lernaJson.version, increment);
   const targetBranch = `release/v${target}`;
-  const targetBranchExists = await exec('git', ['rev-parse', '--verify', targetBranch]);
+  const targetBranchExists = await exec('git', [ 'rev-parse', '--verify', targetBranch ]);
   if (!target || target === '0.0.0') {
     console.log(`ERROR: Invalid increment passed: "${increment}"`);
     process.exit(1);
@@ -156,19 +163,19 @@ async function releaseLatestVersion() {
   await continueWithRelease();
 
   console.log(`\n=> Checking out new branch "${targetBranch}"`);
-  await exec('git', ['checkout', '-b', targetBranch]);
+  await exec('git', [ 'checkout', '-b', targetBranch ]);
   console.log(`\n=> Running Lerna publish`);
   console.log(
-    await exec('lerna', ['publish', '--skip-npm', `--cd-version=${increment}`, '--yes'])
+    await exec('lerna', [ 'publish', '--skip-npm', `--cd-version=${increment}`, '--yes' ]),
   );
   console.log('Success! You are now on the branch ready to go.');
 
-  if (!argv['skip-push']) {
-    if (argv['push']) {
+  if (!argv[ 'skip-push' ]) {
+    if (argv[ 'push' ]) {
       const userResponse = await inquirer.prompt({
         type: 'confirm',
         name: 'continue',
-        message: `Do you want to push the branch to your remote? (${remote})`
+        message: `Do you want to push the branch to your remote? (${remote})`,
       });
       if (userResponse[ 'continue' ]) {
         console.log(`Pushing branch "${targetBranch}" and tag "v${target}" to remote "${remote}"`);
@@ -186,8 +193,6 @@ async function releaseLatestVersion() {
   console.log('Success!');
 
 })();
-
-
 
 
 // On Travis + Master branch
