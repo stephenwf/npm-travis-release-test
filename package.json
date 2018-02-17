@@ -5,6 +5,7 @@
 		"yargs": "^11.0.0"
 	},
 	"scripts": {
+		"test": "echo 'success?'",
 		"release": "node ./bin/release.js",
 		"merge": "node ./bin/merge.js"
 	},
