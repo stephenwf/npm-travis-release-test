@@ -23,7 +23,7 @@ async function continueWithRelease() {
 
 async function releaseNextVersion() {
   const nextArgs = [ 'publish', '--skip-git', '--npm-tag=next', '--canary=next' ];
-  console.log(`\n=> ${chalk.blue('Preparing to release new "next" tag')}`);
+  console.log(`\n=> ${chalk.green('Preparing to release new "next" tag')}`);
   if (!argv[ 'y' ] && !argv[ 'yes' ]) {
     console.log(await exec('lerna', nextArgs).replace(/\r?\n?[^\r\n]*$/, ''));
     await continueWithRelease();
@@ -33,7 +33,7 @@ async function releaseNextVersion() {
 
 async function releaseLatestVersion() {
   const latestArgs = [ 'exec', 'publish' ];
-  console.log(`\n=> ${chalk.blue('Preparing to release new "latest" tag')}`);
+  console.log(`\n=> ${chalk.green('Preparing to release new "latest" tag')}`);
   if (!argv[ 'y' ] && !argv[ 'yes' ] && !argv[ 'ls' ]) {
     console.log(await exec('lerna', [ 'ls' ]));
     await continueWithRelease();
@@ -66,7 +66,7 @@ async function releaseLatestVersion() {
 
   if (argv[ 'diff' ]) {
 
-    console.log(`\n=> ${chalk.blue('Showing changes since last release:')}`);
+    console.log(`\n=> ${chalk.green('Showing changes since last release:')}`);
     console.log(await exec('lerna', [ 'diff' ]));
 
     await continueWithRelease();
@@ -74,7 +74,7 @@ async function releaseLatestVersion() {
 
   if (argv[ 'ls' ]) {
 
-    console.log(`\n=> ${chalk.blue('Current package versions:')}`);
+    console.log(`\n=> ${chalk.green('Current package versions:')}`);
     console.log(await exec('lerna', [ 'ls' ]));
 
     await continueWithRelease();
@@ -118,7 +118,7 @@ async function releaseLatestVersion() {
   const packageJson = require(__dirname + '/../package.json');
   const lernaJson = require(__dirname + '/../lerna.json');
 
-  console.log(`\n=> ${chalk.blue('Checking version branch and tag doesn\'t already exist.')}`);
+  console.log(`\n=> ${chalk.green('Checking version branch and tag doesn\'t already exist.')}`);
   const target = semver.inc(lernaJson.version, increment);
   const targetBranch = `release/v${target}`;
   const targetBranchExists = await exec('git', [ 'rev-parse', '--verify', targetBranch ]);
@@ -140,7 +140,7 @@ async function releaseLatestVersion() {
 
   console.log(`\n=> ${chalk.green(`Checking out new branch "${targetBranch}"`)}`);
   await exec('git', [ 'checkout', '-b', targetBranch ]);
-  console.log(`\n=> Running Lerna publish`);
+  console.log(`\n=> ${chalk.green('Running Lerna publish')}`);
   console.log(
     await exec('lerna', [ 'publish', '--skip-npm', `--cd-version=${increment}`, '--yes' ]),
   );
@@ -153,12 +153,12 @@ async function releaseLatestVersion() {
       message: `Do you want to push the branch to your remote? (${remote})`,
     });
     if (userResponse[ 'continue' ]) {
-      console.log(`Pushing branch "${targetBranch}" and tag "v${target}" to remote "${remote}"`);
+      console.log(chalk.yellow(`Pushing branch "${targetBranch}" and tag "v${target}" to remote "${remote}"`));
       await exec('git', [ 'push', remote, targetBranch ]);
       await exec('git', [ 'push', remote, `v${target}` ]);
 
       if (packageJson.repository) {
-        console.log(`${chalk.green('Your branch has been pushed')}, click here to open a PR:${packageJson.repository}/compare/release/v${target}?expand=1`);
+        console.log(`${chalk.green('Your branch has been pushed')}\n click here to open a PR: ${packageJson.repository}/compare/release/v${target}?expand=1`);
       }
     }
   } else {
