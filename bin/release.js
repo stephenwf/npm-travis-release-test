@@ -184,7 +184,7 @@ async function releaseLatestVersion() {
         console.log(await exec('git', ['push', remote, `v${target}`]));
 
         if (packageJson.repository) {
-          console.log(`Your branch has been pushed, click here to open a PR: ${packageJson.repository}/compare/${branch}...v${target}`);
+          console.log(`Your branch has been pushed, click here to open a PR: ${packageJson.repository}/compare/${branch}...feature/v${target}`);
         }
       }
   } else {
