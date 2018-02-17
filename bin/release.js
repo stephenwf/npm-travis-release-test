@@ -41,18 +41,18 @@ async function exec(command, args, options = {}, suppress = true) {
       },
       ...options,
     });
+    if (suppress === false && response.stderr) {
+      throw new Error(response.stderr);
+    }
+    return trim(
+      response.stdout,
+    );
   } catch (err) {
     if (suppress) {
       return '';
     }
     throw err;
   }
-  if (suppress === false && response.stderr) {
-    throw new Error(response.stderr);
-  }
-  return trim(
-    response.stdout,
-  );
 }
 
 async function releaseNextVersion() {
