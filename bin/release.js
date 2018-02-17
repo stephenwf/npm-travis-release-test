@@ -8,11 +8,6 @@ const inquirer = require('inquirer');
 const semver = require('semver');
 const execa = require('execa');
 
-const githubToken = process.env.GITHUB_TOKEN;
-if (!githubToken) {
-  console.log('WARNING: Not github token found, this may cause problems when committing.');
-}
-
 const npmBin = trim(spawnSync('npm', [ 'bin' ]).stdout);
 
 spawnSync('export', [ 'PATH="$(npm bin):$PATH"' ]);

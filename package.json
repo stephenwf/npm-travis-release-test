@@ -5,7 +5,8 @@
 		"yargs": "^11.0.0"
 	},
 	"scripts": {
-		"release": "node ./bin/release.js"
+		"release": "node ./bin/release.js",
+		"merge": "node ./bin/merge.js"
 	},
 	"license": "MIT",
 	"release": {
