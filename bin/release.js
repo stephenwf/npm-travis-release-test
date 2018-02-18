@@ -48,7 +48,7 @@ async function releasePullRequestVersion() {
     process.exit();
   }
   console.log(
-    await exec('lerna', [ 'publish', '--skip-git', `--npm-tag=${argv[ 'pr-number' ]}`, '--canary=pr' ])
+    await exec('lerna', [ 'publish', '--skip-git', `--npm-tag=${argv[ 'pr-number' ]}`, '--canary=pr' ], {} , false)
   );
 }
 
