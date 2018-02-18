@@ -1,5 +1,5 @@
 {
-  "name": "ntrt-test-3",
+  "name": "@stephenwf/ntrt-test-3",
   "version": "0.0.1",
   "description": "Describe ntrt-test-3 here",
   "main": "lib/index.js",
@@ -15,6 +15,9 @@
     "test:coverage": "nwb test --coverage",
     "test:watch": "nwb test --server",
     "prepublish": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "nwb": "0.19.x"

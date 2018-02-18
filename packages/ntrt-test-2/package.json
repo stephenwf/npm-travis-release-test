@@ -16,6 +16,9 @@
     "test:watch": "nwb test --server",
     "prepublish": "npm run build"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "nwb": "0.19.x"
   },
