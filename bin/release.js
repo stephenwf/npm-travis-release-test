@@ -43,12 +43,12 @@ async function releaseLatestVersion() {
 }
 
 async function releasePullRequestVersion() {
-  if (!argv[ 'pr-number' ]) {
+  if (!argv[ 'pull-request' ]) {
     console.log(`\n=> ${chalk.red('No PR number found.')}`);
-    process.exit();
+    process.exit(1);
   }
   console.log(
-    await exec('lerna', [ 'publish', '--skip-git', `--npm-tag=${argv[ 'pr-number' ]}`, '--canary=pr' ], {} , false)
+    await exec('lerna', [ 'publish', '--skip-git', `--npm-tag=${argv[ 'pull-request' ]}`, '--canary=pr' ], {} , false)
   );
 }
 
@@ -86,7 +86,8 @@ async function releasePullRequestVersion() {
   }
 
   // Pull request.
-  if (argv[ 'pr-number' ]) {
+  if (argv[ 'pull-request' ]) {
+    console.log(`\n=> ${chalk.green('Found a Pull request build.')}`);
     return await releasePullRequestVersion();
   }
 
@@ -201,4 +202,4 @@ async function releasePullRequestVersion() {
 // - $ lerna publish --skip-npm --cd-version=major|minor|patch
 
 // On pull requests
-// lerna publish --skip-git --npm-tag=pr-{pr-number} --canary=pr
+// lerna publish --skip-git --npm-tag=pr-{pull-request} --canary=pr

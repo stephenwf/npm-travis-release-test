@@ -18,5 +18,5 @@ fi
 
 if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
     echo "DEPLOYING A CANARY, NUMBER $TRAVIS_PULL_REQUEST";
-    npm run release -- --pr-number=$TRAVIS_PULL_REQUEST --yes
+    npm run release -- --pull-request=$TRAVIS_PULL_REQUEST --yes
 fi
