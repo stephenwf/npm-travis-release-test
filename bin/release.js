@@ -43,7 +43,7 @@ async function releaseLatestVersion() {
 }
 
 async function releasePullRequestVersion() {
-  if (!args[ 'pr-number' ]) {
+  if (!argv[ 'pr-number' ]) {
     console.log(`\n=> ${chalk.red('No PR number found.')}`);
     process.exit();
   }
