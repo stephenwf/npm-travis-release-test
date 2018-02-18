@@ -32,7 +32,7 @@ async function releaseNextVersion() {
 }
 
 async function releaseLatestVersion() {
-  const latestArgs = [ 'exec', 'publish' ];
+  const latestArgs = [ 'exec', 'npm', 'publish' ];
   console.log(`\n=> ${chalk.green('Preparing to release new "latest" tag')}`);
   if (!argv[ 'y' ] && !argv[ 'yes' ] && !argv[ 'ls' ]) {
     console.log(await exec('lerna', [ 'ls' ]));
