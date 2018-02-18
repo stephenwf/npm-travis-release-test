@@ -42,6 +42,16 @@ async function releaseLatestVersion() {
   console.log(await exec('lerna', latestArgs, {}, false));
 }
 
+async function releasePullRequestVersion() {
+  if (!args[ 'pr-number' ]) {
+    console.log(`\n=> ${chalk.red('No PR number found.')}`);
+    process.exit();
+  }
+  console.log(
+    await exec('lerna', [ 'publish', '--skip-git', `--npm-tag=${args[ 'pr-number' ]}`, '--canary=pr' ])
+  );
+}
+
 (async function main() {
   console.log(`\n=> ${chalk.yellow('Checking installed versions...')}`);
   console.log(`Node version   ${chalk.green(`v${await exec('node', [ '-v' ])}`)}`);
@@ -73,6 +83,11 @@ async function releaseLatestVersion() {
     console.log(await exec('lerna', [ 'ls' ]));
 
     await continueWithRelease();
+  }
+
+  // Pull request.
+  if (argv[ 'pr-number' ]) {
+    await releasePullRequestVersion();
   }
 
   // On Travis + Master branch
