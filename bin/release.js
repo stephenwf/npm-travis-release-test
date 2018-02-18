@@ -59,11 +59,6 @@ async function releaseLatestVersion() {
     process.exit(1);
   }
 
-  if (!await exec('lerna', [ 'diff' ])) {
-    console.log(chalk.yellow('No updated packages to publish.'));
-    process.exit();
-  }
-
   if (argv[ 'diff' ]) {
 
     console.log(`\n=> ${chalk.green('Showing changes since last release:')}`);
@@ -88,6 +83,11 @@ async function releaseLatestVersion() {
   // On Travis + Master branch + Tag
   if (argv[ 'latest' ]) {
     return await releaseLatestVersion();
+  }
+
+  if (!await exec('lerna', [ 'diff' ])) {
+    console.log(chalk.yellow('No updated packages to publish.'));
+    process.exit();
   }
 
   // Default steps.
