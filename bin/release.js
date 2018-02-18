@@ -48,13 +48,13 @@ async function releasePullRequestVersion() {
     process.exit(1);
   }
   console.log(
-    await exec('lerna', [ 'publish', '--skip-git', `--npm-tag=${argv[ 'pull-request' ]}`, '--canary=pr' ], {} , false)
+    await exec('lerna', [ 'publish', '--skip-git', `--npm-tag=${argv[ 'pull-request' ]}`, '--canary=pr', '--yes' ], {} , false)
   );
 }
 
 (async function main() {
   console.log(`\n=> ${chalk.yellow('Checking installed versions...')}`);
-  console.log(`Node version   ${chalk.green(`v${await exec('node', [ '-v' ])}`)}`);
+  console.log(`Node version   ${chalk.green(`${await exec('node', [ '-v' ])}`)}`);
   console.log(`NPM version    ${chalk.green(`v${await exec('npm', [ '-v' ])}`)}`);
   const lerna = await exec('lerna', [ '-v' ]);
   console.log(`Lerna version  v${chalk.green(lerna)}`);
