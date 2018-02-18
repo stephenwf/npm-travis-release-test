@@ -11,7 +11,7 @@ if [[ "$TRAVIS_BRANCH" = "master" ]] && [[ "$TRAVIS_PULL_REQUEST" = "false" ]]; 
 fi
 
 if [[ "${TRAVIS_TAG}" != "" ]]; then
-    echo "DEPLOYING A TAG!";
+    npm run release -- --latest --yes
 fi
 
 if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
