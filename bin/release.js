@@ -87,7 +87,7 @@ async function releasePullRequestVersion() {
 
   // Pull request.
   if (argv[ 'pr-number' ]) {
-    await releasePullRequestVersion();
+    return await releasePullRequestVersion();
   }
 
   // On Travis + Master branch
