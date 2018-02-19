@@ -1,1 +1,1 @@
-export default 'Welcome to ntrt-test-3 v0.0.7'
+export default 'Welcome to ntrt-test-3 v0.0.8'
