@@ -42,9 +42,19 @@ async function releaseLatestVersion() {
   console.log(await exec('lerna', latestArgs, {}, false));
 }
 
+async function releasePullRequestVersion() {
+  if (!argv[ 'pull-request' ]) {
+    console.log(`\n=> ${chalk.red('No PR number found.')}`);
+    process.exit(1);
+  }
+  console.log(
+    await exec('lerna', [ 'publish', '--skip-git', `--npm-tag=pr-${argv[ 'pull-request' ]}`, '--canary=pr', '--yes' ], {} , false)
+  );
+}
+
 (async function main() {
   console.log(`\n=> ${chalk.yellow('Checking installed versions...')}`);
-  console.log(`Node version   ${chalk.green(`v${await exec('node', [ '-v' ])}`)}`);
+  console.log(`Node version   ${chalk.green(`${await exec('node', [ '-v' ])}`)}`);
   console.log(`NPM version    ${chalk.green(`v${await exec('npm', [ '-v' ])}`)}`);
   const lerna = await exec('lerna', [ '-v' ]);
   console.log(`Lerna version  v${chalk.green(lerna)}`);
@@ -73,6 +83,12 @@ async function releaseLatestVersion() {
     console.log(await exec('lerna', [ 'ls' ]));
 
     await continueWithRelease();
+  }
+
+  // Pull request.
+  if (argv[ 'pull-request' ]) {
+    console.log(`\n=> ${chalk.green('Found a Pull request build.')}`);
+    return await releasePullRequestVersion();
   }
 
   // On Travis + Master branch
@@ -186,4 +202,4 @@ async function releaseLatestVersion() {
 // - $ lerna publish --skip-npm --cd-version=major|minor|patch
 
 // On pull requests
-// lerna publish --skip-git --npm-tag=pr-{pr-number} --canary=pr
+// lerna publish --skip-git --npm-tag=pr-{pull-request} --canary=pr
